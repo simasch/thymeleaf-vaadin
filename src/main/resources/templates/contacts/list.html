@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>Contacts</title>
+</head>
+<body>
+<section>
+    <vaadin-horizontal-layout theme="spacing" style="align-items: baseline">
+        <h2>Contacts</h2>
+        <a th:href="@{/contacts/new}" tabindex="-1">
+            <vaadin-button theme="primary">New contact</vaadin-button>
+        </a>
+    </vaadin-horizontal-layout>
+
+    <vaadin-grid id="contacts" theme="row-stripes" style="flex: 1">
+        <vaadin-grid-sort-column path="lastName" header="Last name"></vaadin-grid-sort-column>
+        <vaadin-grid-sort-column path="firstName" header="First name"></vaadin-grid-sort-column>
+        <vaadin-grid-column path="email" header="Email"></vaadin-grid-column>
+        <vaadin-grid-column path="phone" header="Phone"></vaadin-grid-column>
+        <vaadin-grid-column id="actions" flex-grow="0" width="7rem"></vaadin-grid-column>
+    </vaadin-grid>
+
+    <!-- Thymeleaf serializes the model list to JSON; the grid gets it as its items -->
+    <script type="module">
+        const contacts = /*[[${contacts}]]*/ [];
+        const contactsUrl = /*[[@{/contacts}]]*/ '/contacts';
+
+        const grid = document.querySelector('#contacts');
+        grid.items = contacts;
+
+        document.querySelector('#actions').renderer = (root, column, model) => {
+            root.innerHTML = '';
+            const link = document.createElement('a');
+            link.href = `${contactsUrl}/${model.item.id}`;
+            link.textContent = 'Edit';
+            root.appendChild(link);
+        };
+    </script>
+</section>
+</body>
+</html>

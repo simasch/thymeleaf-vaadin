@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:fragment="layout(title, content)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:replace="${title}">Thymeleaf + Vaadin</title>
+    <link rel="stylesheet" th:href="@{/assets/main.css}">
+    <script type="module" th:src="@{/assets/main.js}"></script>
+</head>
+<body>
+<vaadin-app-layout>
+    <vaadin-drawer-toggle slot="navbar"></vaadin-drawer-toggle>
+    <h1 slot="navbar" class="app-title">Thymeleaf + Vaadin</h1>
+
+    <h2 slot="drawer" class="drawer-title">Menu</h2>
+    <vaadin-side-nav slot="drawer">
+        <vaadin-side-nav-item th:path="@{/contacts}">Contacts</vaadin-side-nav-item>
+        <vaadin-side-nav-item th:path="@{/contacts/new}">New contact</vaadin-side-nav-item>
+    </vaadin-side-nav>
+
+    <main class="content" th:insert="${content}"></main>
+</vaadin-app-layout>
+
+<template th:if="${message}" th:data-notification="${message}"></template>
+</body>
+</html>

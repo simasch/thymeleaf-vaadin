@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>Contact</title>
+</head>
+<body>
+<section>
+    <h2 th:text="${contact.id == null} ? 'New contact' : 'Edit contact'">Contact</h2>
+
+    <!-- A plain HTML form: Vaadin fields forward their name to an <input> in the light DOM,
+         so the values are posted like any other form field and bound by Spring MVC.
+         Server-side validation errors are mapped onto the components' invalid/error-message attributes. -->
+    <form class="contact-form" method="post" th:action="@{/contacts}" th:object="${contact}" novalidate>
+        <input type="hidden" th:field="*{id}">
+
+        <vaadin-form-layout>
+            <vaadin-text-field label="First name" name="firstName" required
+                               th:value="*{firstName}"
+                               th:invalid="${#fields.hasErrors('firstName')} ? 'invalid' : null"
+                               th:error-message="${#strings.listJoin(#fields.errors('firstName'), ', ')}">
+            </vaadin-text-field>
+            <vaadin-text-field label="Last name" name="lastName" required
+                               th:value="*{lastName}"
+                               th:invalid="${#fields.hasErrors('lastName')} ? 'invalid' : null"
+                               th:error-message="${#strings.listJoin(#fields.errors('lastName'), ', ')}">
+            </vaadin-text-field>
+            <vaadin-email-field label="Email" name="email" required
+                                th:value="*{email}"
+                                th:invalid="${#fields.hasErrors('email')} ? 'invalid' : null"
+                                th:error-message="${#strings.listJoin(#fields.errors('email'), ', ')}">
+            </vaadin-email-field>
+            <vaadin-text-field label="Phone" name="phone"
+                               th:value="*{phone}"
+                               th:invalid="${#fields.hasErrors('phone')} ? 'invalid' : null"
+                               th:error-message="${#strings.listJoin(#fields.errors('phone'), ', ')}">
+            </vaadin-text-field>
+        </vaadin-form-layout>
+
+        <vaadin-horizontal-layout theme="spacing" style="margin-top: var(--lumo-space-l)">
+            <vaadin-button type="submit" theme="primary">Save</vaadin-button>
+            <a th:href="@{/contacts}" tabindex="-1"><vaadin-button>Cancel</vaadin-button></a>
+        </vaadin-horizontal-layout>
+    </form>
+
+    <form th:if="${contact.id != null}" method="post" th:action="@{/contacts/{id}/delete(id=${contact.id})}">
+        <vaadin-button type="submit" theme="error tertiary">Delete contact</vaadin-button>
+    </form>
+</section>
+</body>
+</html>

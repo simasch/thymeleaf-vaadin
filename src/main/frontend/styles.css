@@ -1,0 +1,46 @@
+html {
+  --lumo-primary-color: hsl(214, 90%, 52%);
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+/* Hide the page until the components are upgraded to avoid a flash of unstyled content */
+vaadin-app-layout:not(:defined) {
+  visibility: hidden;
+}
+
+.app-title {
+  font-size: var(--lumo-font-size-l);
+  margin: 0;
+}
+
+.drawer-title {
+  font-size: var(--lumo-font-size-m);
+  padding: var(--lumo-space-m) var(--lumo-space-l);
+  margin: 0;
+}
+
+.content {
+  padding: var(--lumo-space-l);
+  box-sizing: border-box;
+  height: 100%;
+}
+
+.content > section {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--lumo-space-m);
+}
+
+.content h2 {
+  margin: 0;
+}
+
+.contact-form {
+  max-width: 40rem;
+}
