@@ -27,7 +27,7 @@
     <!-- Unlike list.html, Thymeleaf only provides URLs here. No contact data is in the page:
          the grid calls the data provider whenever it needs a page (initial load, scrolling,
          sorting, filtering), and the data provider fetches that page from the REST endpoint. -->
-    <script type="module" th:inline="javascript">
+    <script type="module">
         const apiUrl = /*[[@{/api/contacts}]]*/ '/api/contacts';
         const contactsUrl = /*[[@{/contacts}]]*/ '/contacts';
 
