@@ -30,6 +30,15 @@ public class ContactController {
         return "contacts/list";
     }
 
+    /**
+     * Same grid as {@link #list}, but no data is put into the model:
+     * the grid fetches its rows page by page from {@link ContactRestController}.
+     */
+    @GetMapping("/lazy")
+    public String lazy() {
+        return "contacts/lazy";
+    }
+
     @GetMapping("/new")
     public String create(Model model) {
         model.addAttribute("contact", new Contact());

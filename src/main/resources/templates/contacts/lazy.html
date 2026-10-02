@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>Contacts (lazy)</title>
+</head>
+<body>
+<section>
+    <vaadin-horizontal-layout theme="spacing" style="align-items: baseline">
+        <h2>Contacts (lazy loading)</h2>
+        <a th:href="@{/contacts/new}" tabindex="-1">
+            <vaadin-button theme="primary">New contact</vaadin-button>
+        </a>
+    </vaadin-horizontal-layout>
+
+    <vaadin-text-field id="filter" placeholder="Filter by name or email" clear-button-visible
+                       style="max-width: 24rem"></vaadin-text-field>
+
+    <vaadin-grid id="contacts" theme="row-stripes" page-size="50" style="flex: 1">
+        <vaadin-grid-sort-column path="lastName" header="Last name" direction="asc"></vaadin-grid-sort-column>
+        <vaadin-grid-sort-column path="firstName" header="First name"></vaadin-grid-sort-column>
+        <vaadin-grid-sort-column path="email" header="Email"></vaadin-grid-sort-column>
+        <vaadin-grid-sort-column path="phone" header="Phone"></vaadin-grid-sort-column>
+        <vaadin-grid-column id="actions" flex-grow="0" width="7rem"></vaadin-grid-column>
+    </vaadin-grid>
+
+    <!-- Unlike list.html, Thymeleaf only provides URLs here. No contact data is in the page:
+         the grid calls the data provider whenever it needs a page (initial load, scrolling,
+         sorting, filtering), and the data provider fetches that page from the REST endpoint. -->
+    <script type="module" th:inline="javascript">
+        const apiUrl = /*[[@{/api/contacts}]]*/ '/api/contacts';
+        const contactsUrl = /*[[@{/contacts}]]*/ '/contacts';
+
+        const grid = document.querySelector('#contacts');
+        const filter = document.querySelector('#filter');
+
+        grid.dataProvider = async ({ page, pageSize, sortOrders }, callback) => {
+            const params = new URLSearchParams({ page, size: pageSize });
+            const sortOrder = sortOrders.find((order) => order.direction);
+            if (sortOrder) {
+                params.set('sort', sortOrder.path);
+                params.set('direction', sortOrder.direction);
+            }
+            if (filter.value) {
+                params.set('filter', filter.value);
+            }
+
+            const response = await fetch(`${apiUrl}?${params}`);
+            const { items, total } = await response.json();
+            // total tells the grid how many rows exist, so the scrollbar is sized correctly
+            callback(items, total);
+        };
+
+        // Re-query from the first page when the filter changes (debounced)
+        let filterTimeout;
+        filter.addEventListener('value-changed', () => {
+            clearTimeout(filterTimeout);
+            filterTimeout = setTimeout(() => {
+                grid.scrollToIndex(0);
+                grid.clearCache();
+            }, 300);
+        });
+
+        document.querySelector('#actions').renderer = (root, column, model) => {
+            root.innerHTML = '';
+            const link = document.createElement('a');
+            link.href = `${contactsUrl}/${model.item.id}`;
+            link.textContent = 'Edit';
+            root.appendChild(link);
+        };
+    </script>
+</section>
+</body>
+</html>

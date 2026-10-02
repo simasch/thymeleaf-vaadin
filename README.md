@@ -9,8 +9,12 @@ as plain HTML tags. No Vaadin Flow on the server: it's ordinary controllers, mod
 - `src/main/frontend/main.js` imports the Vaadin components and the Lumo theme from npm.
   The Maven build (`frontend-maven-plugin`) installs Node and runs Vite, which bundles them into
   `target/classes/static/assets/main.{js,css}`. Every page loads that bundle in `layout.html`.
-- **Data in:** Thymeleaf JavaScript inlining (`/*[[${contacts}]]*/`) turns the model into JSON
-  for `grid.items` (`contacts/list.html`).
+- **Data in, two variants to compare:**
+  - `/contacts` (`contacts/list.html`): Thymeleaf JavaScript inlining (`/*[[${contacts}]]*/`)
+    writes the whole list into the page as JSON, which becomes `grid.items`.
+  - `/contacts/lazy` (`contacts/lazy.html`): the page has no data. The grid's `dataProvider`
+    fetches one page at a time from `GET /api/contacts?page=&size=&sort=&direction=&filter=`
+    (`ContactRestController`) as you scroll, sort, or filter.
 - **Forms:** Vaadin fields forward `name` to a real `<input>` in their light DOM, so a normal
   `<form method="post">` submits them and Spring MVC binds them. Bean Validation errors go back
   onto the components through `th:invalid` / `th:error-message` (`contacts/form.html`).

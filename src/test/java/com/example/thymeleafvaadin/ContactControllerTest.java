@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -48,5 +49,26 @@ class ContactControllerTest {
                         .param("email", "jane@example.com"))
                 .andExpect(redirectedUrl("/contacts"))
                 .andExpect(flash().attribute("message", "Saved Jane Doe"));
+    }
+
+    @Test
+    void lazyPageContainsNoContactData() throws Exception {
+        mockMvc.perform(get("/contacts/lazy"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("grid.dataProvider")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(containsString("Lovelace"))));
+    }
+
+    @Test
+    void apiReturnsFilteredSortedPage() throws Exception {
+        mockMvc.perform(get("/api/contacts")
+                        .param("page", "0")
+                        .param("size", "2")
+                        .param("sort", "firstName")
+                        .param("direction", "desc")
+                        .param("filter", "turing"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.total").value(1))
+                .andExpect(jsonPath("$.items[0].lastName").value("Turing"));
     }
 }
