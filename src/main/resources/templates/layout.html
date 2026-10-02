@@ -23,6 +23,6 @@
     <main class="content" th:insert="${content}"></main>
 </vaadin-app-layout>
 
-<template th:if="${message}" th:data-notification="${message}"></template>
+<template th:if="${message}" th:data-notification="${message}" th:data-theme="${messageTheme}"></template>
 </body>
 </html>

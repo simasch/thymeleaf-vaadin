@@ -4,6 +4,7 @@ import '@vaadin/vaadin-lumo-styles/lumo.css';
 import '@vaadin/app-layout';
 import '@vaadin/app-layout/vaadin-drawer-toggle.js';
 import '@vaadin/button';
+import '@vaadin/confirm-dialog';
 import '@vaadin/email-field';
 import '@vaadin/form-layout';
 import '@vaadin/grid';
@@ -35,6 +36,19 @@ document.addEventListener('keydown', (event) => {
     event.preventDefault();
     form.requestSubmit();
   }
+});
+
+// <vaadin-button data-confirm="dialog-id"> opens that <vaadin-confirm-dialog>.
+// Confirming submits the form the dialog sits in, so the action still is a plain POST.
+document.addEventListener('click', (event) => {
+  const button = event.target.closest('[data-confirm]');
+  if (button && !button.disabled) {
+    document.getElementById(button.dataset.confirm).opened = true;
+  }
+});
+
+document.querySelectorAll('vaadin-confirm-dialog').forEach((dialog) => {
+  dialog.addEventListener('confirm', () => dialog.closest('form')?.requestSubmit());
 });
 
 // Flash messages rendered by Thymeleaf as <template data-notification="...">

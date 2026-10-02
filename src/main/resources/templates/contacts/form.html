@@ -43,8 +43,15 @@
         </vaadin-horizontal-layout>
     </form>
 
+    <!-- The button only opens the dialog; confirming it submits this form (see main.js) -->
     <form th:if="${contact.id != null}" method="post" th:action="@{/contacts/{id}/delete(id=${contact.id})}">
-        <vaadin-button type="submit" theme="error tertiary">Delete contact</vaadin-button>
+        <vaadin-button theme="error tertiary" data-confirm="delete-dialog">Delete contact</vaadin-button>
+        <vaadin-confirm-dialog id="delete-dialog"
+                               header="Delete contact?"
+                               th:message="|${contact.firstName} ${contact.lastName} will be permanently deleted.|"
+                               confirm-text="Delete" confirm-theme="error primary"
+                               cancel-button-visible>
+        </vaadin-confirm-dialog>
     </form>
 </section>
 </body>

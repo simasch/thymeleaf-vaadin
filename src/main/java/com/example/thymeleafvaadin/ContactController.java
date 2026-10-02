@@ -57,9 +57,9 @@ public class ContactController {
         if (bindingResult.hasErrors()) {
             return "contacts/form";
         }
+        boolean created = contact.getId() == null;
         contactService.save(contact);
-        redirectAttributes.addFlashAttribute("message",
-                "Saved " + contact.getFirstName() + " " + contact.getLastName());
+        notify(redirectAttributes, "Contact " + fullName(contact) + (created ? " created" : " updated"), "success");
         return "redirect:/contacts";
     }
 
@@ -67,9 +67,20 @@ public class ContactController {
     public String delete(@PathVariable long id, RedirectAttributes redirectAttributes) {
         Contact contact = findContact(id);
         contactService.delete(id);
-        redirectAttributes.addFlashAttribute("message",
-                "Deleted " + contact.getFirstName() + " " + contact.getLastName());
+        notify(redirectAttributes, "Contact " + fullName(contact) + " deleted", "contrast");
         return "redirect:/contacts";
+    }
+
+    /**
+     * Flash attributes survive the redirect; layout.html turns them into a Vaadin notification.
+     */
+    private static void notify(RedirectAttributes redirectAttributes, String message, String theme) {
+        redirectAttributes.addFlashAttribute("message", message);
+        redirectAttributes.addFlashAttribute("messageTheme", theme);
+    }
+
+    private static String fullName(Contact contact) {
+        return contact.getFirstName() + " " + contact.getLastName();
     }
 
     private Contact findContact(long id) {

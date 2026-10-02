@@ -73,8 +73,11 @@ class ContactControllerTest {
 
     @Test
     void flashMessageIsRenderedAsNotification() throws Exception {
-        mockMvc.perform(get("/contacts").flashAttr("message", "Saved Jane Doe"))
-                .andExpect(content().string(containsString("data-notification=\"Saved Jane Doe\"")));
+        mockMvc.perform(get("/contacts")
+                        .flashAttr("message", "Contact Jane Doe deleted")
+                        .flashAttr("messageTheme", "contrast"))
+                .andExpect(content().string(
+                        containsString("data-notification=\"Contact Jane Doe deleted\" data-theme=\"contrast\"")));
     }
 
     @Test
@@ -106,6 +109,18 @@ class ContactControllerTest {
                         containsString("value=\"Grace\""),
                         containsString("value=\"grace@example.com\""),
                         containsString("action=\"/contacts/" + grace.getId() + "/delete\""))));
+    }
+
+    @Test
+    void deleteButtonOpensConfirmDialogInsteadOfSubmitting() throws Exception {
+        Contact grace = contactService.find("hopper", "lastName", true, 0, 1).getFirst();
+
+        mockMvc.perform(get("/contacts/{id}", grace.getId()))
+                .andExpect(content().string(allOf(
+                        containsString("<vaadin-button theme=\"error tertiary\" data-confirm=\"delete-dialog\">"),
+                        containsString("<vaadin-confirm-dialog id=\"delete-dialog\""),
+                        containsString("message=\"Grace Hopper will be permanently deleted.\""),
+                        containsString("confirm-theme=\"error primary\""))));
     }
 
     @Test
@@ -160,7 +175,8 @@ class ContactControllerTest {
                         .param("lastName", "Createtest")
                         .param("email", "jane.createtest@example.com"))
                 .andExpect(redirectedUrl("/contacts"))
-                .andExpect(flash().attribute("message", "Saved Jane Createtest"));
+                .andExpect(flash().attribute("message", "Contact Jane Createtest created"))
+                .andExpect(flash().attribute("messageTheme", "success"));
 
         Contact saved = contactService.find("createtest", "lastName", true, 0, 10).getFirst();
         assertThat(saved.getEmail()).isEqualTo("jane.createtest@example.com");
@@ -177,7 +193,9 @@ class ContactControllerTest {
                             .param("firstName", "Johnny")
                             .param("lastName", "Updatetest")
                             .param("email", "johnny@example.com"))
-                    .andExpect(redirectedUrl("/contacts"));
+                    .andExpect(redirectedUrl("/contacts"))
+                    .andExpect(flash().attribute("message", "Contact Johnny Updatetest updated"))
+                    .andExpect(flash().attribute("messageTheme", "success"));
 
             assertThat(contactService.count(null)).isEqualTo(before);
             assertThat(contactService.findById(contact.getId())).hasValueSatisfying(updated -> {
@@ -195,7 +213,8 @@ class ContactControllerTest {
 
         mockMvc.perform(post("/contacts/{id}/delete", contact.getId()))
                 .andExpect(redirectedUrl("/contacts"))
-                .andExpect(flash().attribute("message", "Deleted Dora Deletetest"));
+                .andExpect(flash().attribute("message", "Contact Dora Deletetest deleted"))
+                .andExpect(flash().attribute("messageTheme", "contrast"));
 
         assertThat(contactService.findById(contact.getId())).isEmpty();
     }
@@ -214,7 +233,8 @@ class ContactControllerTest {
                 .andExpect(model().attributeDoesNotExist("contacts"))
                 .andExpect(content().string(allOf(
                         containsString("grid.dataProvider"),
-                        containsString("/api/contacts"),
+                        // th:inline="javascript" renders the URL as a JavaScript string literal
+                        containsString("const apiUrl = \"\\/api\\/contacts\";"),
                         not(containsString("Lovelace")))));
     }
 }
