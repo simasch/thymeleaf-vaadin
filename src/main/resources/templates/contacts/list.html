@@ -22,7 +22,7 @@
     </vaadin-grid>
 
     <!-- Thymeleaf serializes the model list to JSON; the grid gets it as its items -->
-    <script type="module">
+    <script type="module" th:inline="javascript">
         const contacts = /*[[${contacts}]]*/ [];
         const contactsUrl = /*[[@{/contacts}]]*/ '/contacts';
 
